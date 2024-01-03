@@ -1,9 +1,15 @@
 package com.bancoImobiliario.spring.controller;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.Random;
 
+import org.json.simple.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,21 +22,21 @@ import com.bancoImobiliario.spring.model.Player;
 @RestController
 public class GameController {
     private Queue<Player> players = new LinkedList<Player>();
+    private List<Player> finalPlayers = new ArrayList<>();
     private GameBoard[] gameBoard = new GameBoard[20];
 
-    // private static int round = 0;
-    // TODO: terminar a partida se atingir 1000 rodadas
+    private static int round = 0;
 
     @GetMapping("/jogo/simular")
-    public ResponseEntity<String> WinnerPlayer() {
-        // StartGame();
-        return ResponseEntity.status(HttpStatus.OK).body("teste");
+    public ResponseEntity<JSONObject> WinnerPlayer() {
+        StartGame();
+        JSONObject resultJson = new JSONObject(PlayGame());
+        return ResponseEntity.status(HttpStatus.OK).body(resultJson);
     }
 
     public void StartGame() {
         CreatePlayers();
         CreateGameBoard();
-        PlayGame();
     }
 
     public void CreatePlayers() {
@@ -49,16 +55,16 @@ public class GameController {
         }
         for (int i : playersRandom) {
             switch (i) {
-                case 1:
+                case 0:
                     players.add(player1);
                     break;
-                case 2:
+                case 1:
                     players.add(player2);
                     break;
-                case 3:
+                case 2:
                     players.add(player3);
                     break;
-                case 4:
+                case 3:
                     players.add(player4);
                     break;
             }
@@ -104,12 +110,68 @@ public class GameController {
         }
     }
 
-    public void PlayGame() {
+    public HashMap<String, Object> PlayGame() {
+        Player currentPlayer = new Player();
+        int currentHouse = 0;
+        boolean buyHouse = false;
 
+        do {
+            currentPlayer = players.remove();
+            currentHouse += currentPlayer.RollDice();
+            if (currentHouse > 19)
+                currentHouse = currentHouse - 20;
+
+            if (gameBoard[currentHouse].getHouse().getIdHouse() == 0) {
+                buyHouse = currentPlayer.ActionBuy(currentPlayer, gameBoard[currentHouse].getHouse());
+                if (buyHouse) {
+                    gameBoard[currentHouse].getHouse().setIdHouse(currentPlayer.getIdPlayer());
+                }
+                players.add(currentPlayer);
+            } else if (gameBoard[currentHouse].getHouse().getIdHouse() == 1 && 1 != currentPlayer.getIdPlayer()) {
+                PlayerRent(currentPlayer, gameBoard[currentHouse].getHouse());
+            } else if (gameBoard[currentHouse].getHouse().getIdHouse() == 2 && 2 != currentPlayer.getIdPlayer()) {
+                PlayerRent(currentPlayer, gameBoard[currentHouse].getHouse());
+            } else if (gameBoard[currentHouse].getHouse().getIdHouse() == 3 && 3 != currentPlayer.getIdPlayer()) {
+                PlayerRent(currentPlayer, gameBoard[currentHouse].getHouse());
+            } else if (gameBoard[currentHouse].getHouse().getIdHouse() == 4 && 4 != currentPlayer.getIdPlayer()) {
+                PlayerRent(currentPlayer, gameBoard[currentHouse].getHouse());
+            }
+            round++;
+        } while (round < 1000 && players.size() > 1);
+
+        HashMap<String, Object> result = new HashMap<String, Object>();
+
+        for (int i = 0; i < players.size(); i++) {
+            finalPlayers.add(players.peek());
+        }
+        Collections.sort(finalPlayers, new Comparator<Player>() {
+            public int compare(Player p1, Player p2) {
+                return Integer.compare(p1.getMoney(), p2.getMoney());
+            }
+        });
+
+        String[] orderPlayers = new String[finalPlayers.size()];
+        for (int i = 0; i < finalPlayers.size(); i++) {
+            orderPlayers[i] = finalPlayers.get(i).getProfile();
+        }
+        result.put("vencedor:", currentPlayer.getProfile());
+        result.put("jogadores:", orderPlayers);
+        return result;
     }
 
-    public int RollDice() {
-        Random r = new Random();
-        return r.nextInt(6);
+    public void PlayerRent(Player currentPlayer, House currentHouse) {
+        boolean rentHouse = false;
+
+        rentHouse = currentPlayer.ActionRent(currentPlayer, currentHouse);
+        if (rentHouse) {
+            players.add(currentPlayer);
+        } else {
+            for (int i = 0; i < gameBoard.length; i++) {
+                if (gameBoard[i].getHouse().getIdHouse() == currentPlayer.getIdPlayer())
+                    gameBoard[i].getHouse().setIdHouse(0);
+            }
+            currentPlayer.setMoney(currentPlayer.getMoney() - currentHouse.getRent());
+            finalPlayers.add(currentPlayer);
+        }
     }
 }
