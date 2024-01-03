@@ -23,24 +23,46 @@ public class GameController {
 
     @GetMapping("/jogo/simular")
     public ResponseEntity<String> WinnerPlayer() {
-        StartGame();
+        // StartGame();
         return ResponseEntity.status(HttpStatus.OK).body("teste");
     }
 
     public void StartGame() {
         CreatePlayers();
         CreateGameBoard();
+        PlayGame();
     }
 
     public void CreatePlayers() {
-        Player newPlayer = new Player(300, 1, "impulsivo");
-        players.add(newPlayer);
-        newPlayer = new Player(300, 2, "exigente");
-        players.add(newPlayer);
-        newPlayer = new Player(300, 3, "cauteloso");
-        players.add(newPlayer);
-        newPlayer = new Player(300, 4, "aleatorio");
-        players.add(newPlayer);
+        Player player1 = new Player(300, 1, "impulsivo");
+        Player player2 = new Player(300, 2, "exigente");
+        Player player3 = new Player(300, 3, "cauteloso");
+        Player player4 = new Player(300, 4, "aleatorio");
+
+        int[] playersRandom = { 1, 2, 3, 4 };
+        Random random = new Random();
+        for (int i = playersRandom.length - 1; i > 0; i--) {
+            int randomI = random.nextInt(i + 1);
+            int temp = playersRandom[i];
+            playersRandom[i] = playersRandom[randomI];
+            playersRandom[randomI] = temp;
+        }
+        for (int i : playersRandom) {
+            switch (i) {
+                case 1:
+                    players.add(player1);
+                    break;
+                case 2:
+                    players.add(player2);
+                    break;
+                case 3:
+                    players.add(player3);
+                    break;
+                case 4:
+                    players.add(player4);
+                    break;
+            }
+        }
     }
 
     public void CreateGameBoard() {
@@ -80,8 +102,14 @@ public class GameController {
                     break;
             }
         }
-        for (int i = 0; i < gameBoard.length; i++) {
-            System.out.println(gameBoard[i].getHouse().getPrice());
-        }
+    }
+
+    public void PlayGame() {
+
+    }
+
+    public int RollDice() {
+        Random r = new Random();
+        return r.nextInt(6);
     }
 }
