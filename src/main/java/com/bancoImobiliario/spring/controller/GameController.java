@@ -88,19 +88,6 @@ public class GameController {
     }
 
     public void CreateGameBoard() {
-        House[] typeHouse = new House[5];
-        House houseType1 = new House(20, 40, 0);
-        House houseType2 = new House(30, 50, 0);
-        House houseType3 = new House(50, 80, 0);
-        House houseType4 = new House(70, 100, 0);
-        House houseType5 = new House(90, 110, 0);
-
-        typeHouse[0] = houseType1;
-        typeHouse[1] = houseType2;
-        typeHouse[2] = houseType3;
-        typeHouse[3] = houseType4;
-        typeHouse[4] = houseType5;
-
         Random rand = new Random();
         int randInt;
 
@@ -108,19 +95,24 @@ public class GameController {
             randInt = rand.nextInt(5);
             switch (randInt) {
                 case 0:
-                    gameBoard[i] = new GameBoard(typeHouse[0]);
+                    House houseType1 = new House(40, 60, 0);
+                    gameBoard[i] = new GameBoard(houseType1);
                     break;
                 case 1:
-                    gameBoard[i] = new GameBoard(typeHouse[1]);
+                    House houseType2 = new House(50, 90, 0);
+                    gameBoard[i] = new GameBoard(houseType2);
                     break;
                 case 2:
-                    gameBoard[i] = new GameBoard(typeHouse[2]);
+                    House houseType3 = new House(70, 110, 0);
+                    gameBoard[i] = new GameBoard(houseType3);
                     break;
                 case 3:
-                    gameBoard[i] = new GameBoard(typeHouse[3]);
+                    House houseType4 = new House(90, 120, 0);
+                    gameBoard[i] = new GameBoard(houseType4);
                     break;
                 case 4:
-                    gameBoard[i] = new GameBoard(typeHouse[4]);
+                    House houseType5 = new House(100, 130, 0);
+                    gameBoard[i] = new GameBoard(houseType5);
                     break;
             }
         }
@@ -155,20 +147,29 @@ public class GameController {
             round++;
         } while (round < 1000 && players.size() > 1);
 
+        // TODO: testa id casas
+        // for (int i = 0; i < gameBoard.length; i++) {
+        // System.out.println(gameBoard[i].getHouse().getIdHouse());
+        // }
+
         HashMap<String, Object> result = new HashMap<String, Object>();
 
         for (int i = 0; i < players.size(); i++) {
             finalPlayers.add(players.peek());
         }
+        System.out.println(players.size());
+        System.out.println(finalPlayers.size());
+
         Collections.sort(finalPlayers, new Comparator<Player>() {
             public int compare(Player p1, Player p2) {
                 return Integer.compare(p1.getMoney(), p2.getMoney());
             }
         });
 
-        for (int i = 0; i < players.size(); i++) {
-            System.out.println(players.peek());
-        }
+        // TODO: vencedor
+        // for (int i = 0; i < players.size(); i++) {
+        // System.out.println(players.peek().getProfile());
+        // }
 
         String[] orderPlayers = new String[finalPlayers.size()];
         for (int i = 0; i < finalPlayers.size(); i++) {
@@ -177,7 +178,13 @@ public class GameController {
         result.put("vencedor:", orderPlayers[0]);
         result.put("jogadores:", orderPlayers);
 
-        System.out.println(orderPlayers);
+        // TODO: mostra a ordem dos jogadores, precisa arrumar
+        // for (String i : orderPlayers) {
+        // System.out.println(i);
+        // }
+        // for (int i = 0; i < finalPlayers.size(); i++) {
+        // System.out.println(finalPlayers.get(i).getProfile());
+        // }
         return result;
     }
 
