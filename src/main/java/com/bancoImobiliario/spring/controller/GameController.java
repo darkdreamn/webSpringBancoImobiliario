@@ -45,14 +45,30 @@ public class GameController {
         Player player3 = new Player(300, 3, "cauteloso");
         Player player4 = new Player(300, 4, "aleatorio");
 
-        int[] playersRandom = { 1, 2, 3, 4 };
-        Random random = new Random();
-        for (int i = playersRandom.length - 1; i > 0; i--) {
-            int randomI = random.nextInt(i + 1);
-            int temp = playersRandom[i];
-            playersRandom[i] = playersRandom[randomI];
-            playersRandom[randomI] = temp;
-        }
+        int[] playersRandom = { -1, -1, -1, -1 };
+        int auxPlayer;
+        int count = 0;
+        boolean find = false;
+        do {
+            auxPlayer = (int) (Math.random() * playersRandom.length);
+            for (int i : playersRandom) {
+                if (i == auxPlayer) {
+                    find = true;
+                    break;
+                } else
+                    find = false;
+            }
+            if (find == false) {
+                for (int i = 0; i < playersRandom.length; i++) {
+                    if (playersRandom[i] == -1) {
+                        playersRandom[i] = auxPlayer;
+                        count++;
+                        break;
+                    }
+                }
+            }
+        } while (count < playersRandom.length);
+
         for (int i : playersRandom) {
             switch (i) {
                 case 0:
@@ -150,12 +166,18 @@ public class GameController {
             }
         });
 
+        for (int i = 0; i < players.size(); i++) {
+            System.out.println(players.peek());
+        }
+
         String[] orderPlayers = new String[finalPlayers.size()];
         for (int i = 0; i < finalPlayers.size(); i++) {
             orderPlayers[i] = finalPlayers.get(i).getProfile();
         }
-        result.put("vencedor:", currentPlayer.getProfile());
+        result.put("vencedor:", orderPlayers[0]);
         result.put("jogadores:", orderPlayers);
+
+        System.out.println(orderPlayers);
         return result;
     }
 
